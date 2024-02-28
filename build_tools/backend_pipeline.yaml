@@ -73,4 +73,4 @@ stages:
               deployToSlotOrASE: true
               resourceGroupName: 'rg-learning-cloud'
               slotName: 'production'
-              containers: 'sj-cloud-registry/mydockerrepo/myimage:$(Build.BuildId)'
+              containers: 'sjcloudcontainerregistry.azurecr.io/mydockerrepo/myimage:$(Build.BuildId)'
