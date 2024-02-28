@@ -29,13 +29,14 @@ stages:
             displayName: "Install Requiremnents"
             inputs:
               script: |
+                cd backend
                 pip install -r requirements.txt
           
           - task: CmdLine@2
             displayName: Generating Reports
             inputs:
               script: |
-                cd code
+                cd backend
                 pip install pytest pytest-azurepipelines
                 pip install pytest-cov
                 python -m pytest -v -c pytest.ini --cov-config=.coveragerc --junitxml=results.xml --cov=. --cov-report=xml --cov-report=html
