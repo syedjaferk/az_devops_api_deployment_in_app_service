@@ -1,0 +1,83 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+# trigger:
+# - main
+
+stages:
+  - stage: BuildDev
+    pool:
+      name: Default
+      displayName: "Building-Dev"
+    
+    jobs:
+      - job: Building
+        steps:
+          - task: UsePythonVersion@0
+            displayName: "Use python version 3.8"
+            inputs:
+              versionSpec: '3.8'
+          
+          - task: CmdLine@2
+            displayName: Upgrafe PIP tool
+            inputs:
+              script: python -m pip install --upgrade pip
+          
+          - task: CmdLine@2
+            displayName: "Install Requiremnents"
+            inputs:
+              script: |
+                pip install -r requirements.txt
+          
+          - task: CmdLine@2
+            displayName: Generating Reports
+            inputs:
+              script: |
+                cd code
+                pip install pytest pytest-azurepipelines
+                pip install pytest-cov
+                python -m pytest -v -c pytest.ini --cov-config=.coveragerc --junitxml=results.xml --cov=. --cov-report=xml --cov-report=html
+          # https://learn.microsoft.com/en-us/azure/devops/pipelines/ecosystems/customize-python?view=azure-devops#test
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: '**/test-*.xml'
+              testRunTitle: 'Publish test results for Python $(python.version)'
+
+          - task: PublishCodeCoverageResults@1
+            displayName: Publish code coverage files.
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+              reportDirectory: "$(System.DefaultWorkingDirectory)/htmlcov"
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/code'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(System.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+              replaceExistingArchive: true
+    
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: "Container"
+
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'Free Trial(2)(44740981-b69b-4527-a3e9-fd65a5fe212b)'
+              appType: 'webAppLinux'
+              appName: 'fastapitesting'
+              deployToSlotOrASE: true
+              resourceGroupName: 'rg-learning-cloud'
+              slotName: 'production'
+              package: '$(Pipeline.Workspace)/drop/*.zip'
+              runtimeStack: 'PYTHON|3.10'
+              startUpCommand: 'uvicorn app:app'
+
+
