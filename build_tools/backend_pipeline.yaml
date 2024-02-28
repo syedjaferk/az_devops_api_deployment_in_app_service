@@ -60,7 +60,7 @@ stages:
           - task: Docker@2
             displayName: Build an image
             inputs:
-              ccontainerRegistry: 'CloudLearningDocker' # Name of the service connection to your container registry
+              containerRegistry: 'sj-cloud-registry' # Name of the service connection to your container registry
               repository: 'mydockerrepo/myimage' # Name of your Docker repository
               command: 'buildAndPush' # The Docker command to execute (e.g., 'buildAndPush', 'build', 'push', 'run')
               Dockerfile: '**/Dockerfile' # Path to your Dockerfile
