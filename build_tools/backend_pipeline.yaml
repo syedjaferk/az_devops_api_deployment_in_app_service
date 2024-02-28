@@ -9,7 +9,7 @@
 stages:
   - stage: BuildDev
     pool:
-      name: Default
+      vmImage: 'ubuntu-latest'
       displayName: "Building-Dev"
     
     jobs:
