@@ -65,3 +65,12 @@ stages:
               command: 'buildAndPush' # The Docker command to execute (e.g., 'buildAndPush', 'build', 'push', 'run')
               Dockerfile: '**/Dockerfile' # Path to your Dockerfile
               tags: '$(Build.BuildId)' # Tags for the Docker image
+          
+          - task: AzureWebAppContainer@1
+            inputs:
+              azureSubscription: 'Free Trial(44740981-b69b-4527-a3e9-fd65a5fe212b)'
+              appName: 'sj-api-deployment'
+              deployToSlotOrASE: true
+              resourceGroupName: 'rg-learning-cloud'
+              slotName: 'production'
+              containers: 'sj-cloud-registry/mydockerrepo/myimage:$(Build.BuildId)'
